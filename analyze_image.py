@@ -4,9 +4,11 @@ import os
 import boto3
 import time
 
-s3 = boto3.client('s3')
-rekognition = boto3.client('rekognition')
-dynamodb = boto3.resource('dynamodb')
+region = os.getenv("AWS_REGION")
+
+s3 = boto3.client("s3", region_name=region)
+rekognition = boto3.client("rekognition", region_name=region)
+dynamodb = boto3.resource("dynamodb", region_name=region)
 
 def analyze_image(file_path, branch):
     filename = os.path.basename(file_path)
