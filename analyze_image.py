@@ -2,65 +2,61 @@ import os
 import boto3
 import time
 from decimal import Decimal
-from botocore.exceptions import BotoCoreError, ClientError
-from boto3.dynamodb.conditions import Key
 
-# Initialize AWS clients
-s3 = boto3.client('s3')
-rekognition = boto3.client('rekognition')
-dynamodb = boto3.resource('dynamodb')
+# Get AWS region (required to avoid NoRegionError)
+region = os.environ.get('AWS_REGION', 'us-east-1')  # Default to us-east-1
+
+# Initialize clients with region
+s3 = boto3.client('s3', region_name=region)
+rekognition = boto3.client('rekognition', region_name=region)
+dynamodb = boto3.resource('dynamodb', region_name=region)
 
 def analyze_image(file_path, branch):
-    try:
-        filename = os.path.basename(file_path)
-        print(f"\nAnalyzing: {filename}")
+    filename = os.path.basename(file_path)
+    
+    # Get env vars
+    bucket = os.environ.get('S3_BUCKET')
+    if not bucket:
+        raise ValueError("Missing environment variable: S3_BUCKET")
 
-        # Get environment variables
-        bucket = os.getenv('S3_BUCKET')
-        if not bucket:
-            raise EnvironmentError("Missing S3_BUCKET environment variable.")
+    table_name = (
+        os.environ.get('DYNAMODB_TABLE_BETA') if branch == 'beta'
+        else os.environ.get('DYNAMODB_TABLE_PROD')
+    )
+    if not table_name:
+        raise ValueError("Missing environment variable for DynamoDB table.")
 
-        table_name = (
-            os.getenv('DYNAMODB_TABLE_BETA') if branch == 'beta'
-            else os.getenv('DYNAMODB_TABLE_PROD')
-        )
-        if not table_name:
-            raise EnvironmentError("Missing DynamoDB table name environment variable.")
+    table = dynamodb.Table(table_name)
 
-        table = dynamodb.Table(table_name)
+    # Upload image to S3
+    s3.upload_file(file_path, bucket, f"rekognition-input/{filename}")
 
-        # Upload image to S3
-        s3_key = f"rekognition-input/{filename}"
-        s3.upload_file(file_path, bucket, s3_key)
-        print(f"Uploaded {filename} to S3 bucket: {bucket}")
+    # Analyze image using Rekognition
+    response = rekognition.detect_labels(
+        Image={'S3Object': {'Bucket': bucket, 'Name': f"rekognition-input/{filename}"}},
+        MaxLabels=10,
+        MinConfidence=70
+    )
 
-        # Wait briefly for S3 propagation
-        time.sleep(2)
-
-        # Call Rekognition
-        response = rekognition.detect_labels(
-            Image={'S3Object': {'Bucket': bucket, 'Name': s3_key}},
-            MaxLabels=10,
-            MinConfidence=70
-        )
-
-        # Convert float confidence to Decimal
-        labels = [
+    # Write labels and confidence scores to DynamoDB
+    table.put_item(Item={
+        'filename': filename,
+        'labels': [
             {
                 'Name': label['Name'],
                 'Confidence': Decimal(str(label['Confidence']))
-            }
-            for label in response['Labels']
-        ]
+            } for label in response['Labels']
+        ],
+        'timestamp': int(time.time())
+    })
 
-        # Store results in DynamoDB
-        table.put_item(Item={
-            'filename': filename,
-            'labels': labels,
-            'timestamp': int(time.time())
-        })
+# Entry point when running script directly
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) != 3:
+        print("Usage: python analyze_image.py <file_path> <branch>")
+        sys.exit(1)
 
-        print(f"Stored results for {filename} in table: {table_name}")
-
-    except (BotoCoreError, ClientError, Exception) as e:
-        print(f"Error processing {file_path}: {e}")
+    file_path = sys.argv[1]
+    branch = sys.argv[2]
+    analyze_image(file_path, branch)
