@@ -30,4 +30,4 @@ jobs:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           DYNAMODB_TABLE_BETA: ${{ secrets.DYNAMODB_TABLE_BETA }}
         run: |
-          python analyze_image.py
+           python analyze_image.py path/to/image.png beta
