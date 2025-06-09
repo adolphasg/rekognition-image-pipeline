@@ -1,4 +1,3 @@
-# .github/workflows/on_pull_request.yml
 name: Analyze Image on PR
 
 on:
@@ -12,7 +11,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-        
+
 - name: Set up Python
         uses: actions/setup-python@v4
         with:
