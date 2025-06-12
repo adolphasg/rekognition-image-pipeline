@@ -30,8 +30,4 @@ jobs:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           DYNAMODB_TABLE_BETA: ${{ secrets.DYNAMODB_TABLE_BETA }}
         run: |
-           for file in images/*.jpg images/*.png; do
-  if [ -f "$file" ]; then
-    python analyze_image.py "$file" beta
-  fi
-done
+           python analyze_image.py images/beach.jpg beta
