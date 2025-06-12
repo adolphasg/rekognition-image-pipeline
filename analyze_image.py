@@ -62,3 +62,4 @@ if __name__ == '__main__':
     file_path = sys.argv[1]
     branch = sys.argv[2]
     analyze_image(file_path, branch)
+
