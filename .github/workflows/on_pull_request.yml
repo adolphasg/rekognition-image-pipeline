@@ -30,6 +30,8 @@ jobs:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           DYNAMODB_TABLE_BETA: ${{ secrets.DYNAMODB_TABLE_BETA }}
         run: |
-           find images -type f \( -iname "*.jpg" -o -iname "*.png" \) | while read file; do
-  python analyze_image.py "$file" beta
+           for file in images/*.jpg images/*.png; do
+  if [ -f "$file" ]; then
+    python analyze_image.py "$file" beta
+  fi
 done
