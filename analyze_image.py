@@ -13,7 +13,7 @@ dynamodb = boto3.resource('dynamodb', region_name=region)
 
 def analyze_image(file_path, branch):
     filename = os.path.basename(file_path)
-
+    
     # Get env vars
     bucket = os.environ.get('S3_BUCKET')
     if not bucket:
@@ -54,14 +54,9 @@ def analyze_image(file_path, branch):
 if __name__ == '__main__':
     import sys
     if len(sys.argv) != 3:
-        print("Usage: python analyze_image.py <images_folder> <branch>")
+        print("Usage: python analyze_image.py <file_path> <branch>")
         sys.exit(1)
 
-    folder_path = sys.argv[1]
+    file_path = sys.argv[1]
     branch = sys.argv[2]
-
-    supported_extensions = ('.jpg', '.jpeg', '.png')
-    for filename in os.listdir(folder_path):
-        if filename.lower().endswith(supported_extensions):
-            file_path = os.path.join(folder_path, filename)
-            analyze_image(file_path, branch)
+    analyze_image(file_path, branch)
