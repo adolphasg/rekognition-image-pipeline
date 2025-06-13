@@ -2,7 +2,7 @@ import os
 import sys
 import boto3
 from decimal import Decimal
-from datetime import datetime
+import time
 
 # Get AWS region
 region = os.environ.get('AWS_REGION', 'us-east-1')
@@ -36,7 +36,7 @@ def analyze_image(file_path, branch):
     item = {
         'filename': filename,
         'labels': labels,
-        'timestamp': datetime.utcnow().isoformat(),
+        'timestamp': int(time.time()),
         'branch': branch
     }
 
