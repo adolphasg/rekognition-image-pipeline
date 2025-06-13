@@ -36,7 +36,7 @@ def analyze_image(file_path, branch):
     item = {
         'filename': filename,
         'labels': labels,
-        'timestamp': datetime.utcnow().isoformat(),
+        'timestamp': datetime.datetime.utcnow().isoformat(),
         'branch': branch
     }
 
