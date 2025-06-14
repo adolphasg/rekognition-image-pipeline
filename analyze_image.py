@@ -26,10 +26,11 @@ def analyze_image(file_path, branch):
     with open(file_path, 'rb') as image:
         response = rekognition.detect_labels(Image={'Bytes': image.read()})
 
-    # Format label data as { label: confidence }
+    # Filter and format labels with confidence over 98%
     labels = {
         label['Name']: Decimal(str(label['Confidence']))
         for label in response['Labels']
+        if label['Confidence'] >= 98.0
     }
 
     # Build item to store in DynamoDB
