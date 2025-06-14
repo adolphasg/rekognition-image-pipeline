@@ -1,7 +1,7 @@
 name: Analyze Image on PR
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
@@ -22,12 +22,12 @@ jobs:
         run: |
           pip install --upgrade boto3 --quiet
 
-      - name: Run image analysis for PR (Beta)
+      - name: Run image analysis for PR (Prod)
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          DYNAMODB_TABLE_BETA: ${{ secrets.DYNAMODB_TABLE_BETA }}
+          DYNAMODB_TABLE_BETA: ${{ secrets.DYNAMODB_TABLE_PROD }}
         run: |
-           python analyze_image.py images/beach.jpg prod
+           python analyze_image.py prod
