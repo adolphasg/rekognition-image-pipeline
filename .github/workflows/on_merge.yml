@@ -31,3 +31,4 @@ jobs:
           DYNAMODB_TABLE_PROD: ${{ secrets.DYNAMODB_TABLE_PROD }}
         run: |
            python analyze_image.py prod
+           
