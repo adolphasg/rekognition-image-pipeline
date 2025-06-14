@@ -61,3 +61,4 @@ if __name__ == "__main__":
         if file.lower().endswith(supported_extensions):
             file_path = os.path.join(image_folder, file)
             analyze_image(file_path, branch)
+            
