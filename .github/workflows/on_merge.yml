@@ -28,6 +28,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          DYNAMODB_TABLE_BETA: ${{ secrets.DYNAMODB_TABLE_PROD }}
+          DYNAMODB_TABLE_PROD: ${{ secrets.DYNAMODB_TABLE_PROD }}
         run: |
            python analyze_image.py prod
+
+           
