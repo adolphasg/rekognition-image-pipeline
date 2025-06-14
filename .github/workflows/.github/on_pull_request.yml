@@ -31,3 +31,4 @@ jobs:
           DYNAMODB_TABLE_BETA: ${{ secrets.DYNAMODB_TABLE_BETA }}
         run: |
            python analyze_image.py beta
+           
